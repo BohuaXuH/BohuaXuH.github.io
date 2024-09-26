@@ -4,7 +4,7 @@
         <title>Bohua xu</title>
         <link>https://antfu.me/</link>
         <description>bohua xu' Blog</description>
-        <lastBuildDate>Thu, 15 Aug 2024 14:32:06 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 26 Sep 2024 15:13:36 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -223,10 +223,141 @@ function MyComponent() {
             <author>xu2526@outlook.com (Bohua Xu)</author>
         </item>
         <item>
+            <title><![CDATA[useContext -useReducer]]></title>
+            <link>https://xubh.top/posts/useContextuseReducer</link>
+            <guid>https://xubh.top/posts/useContextuseReducer</guid>
+            <pubDate>Tue, 21 Dec 2021 16:00:00 GMT</pubDate>
+            <description><![CDATA[Prefer object destructure or array? Can we support both?]]></description>
+            <content:encoded><![CDATA[<p>[[toc]]</p>
+<h2>useContext</h2>
+<pre><code class="language-js">const CountContext = React.createContext()
+// CountProvider和useCount写在外部导入
+function CountProvider(props) {
+  const [count, setCount] = React.useState(0)
+  const value = [count, setCount]
+  return &lt;CountContext.Provider value={value} {...props} /&gt;
+}
+
+function useCount() { // 封装useCount
+  const context = React.useContext(CountContext)
+  if (!context)
+    throw new Error('useCount must be used within a CountProvider')
+
+  return context
+}
+
+function CountDisplay() {
+  const [count] = useCount()
+  return &lt;div&gt;{`The current count is ${count}`}&lt;/div&gt;
+}
+
+function Counter() {
+  const [, setCount] = useCount()
+  const increment = () =&gt; setCount(c =&gt; c + 1)
+  return &lt;button onClick={increment}&gt;Increment count&lt;/button&gt;
+}
+
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;CountProvider&gt;
+        &lt;CountDisplay /&gt;
+        &lt;Counter /&gt;
+      &lt;/CountProvider&gt;
+    &lt;/div&gt;
+  )
+}
+</code></pre>
+<pre><code class="language-js">const CountContext = React.createContext()
+
+function CountProvider(props) {
+  const [count, setCount] = React.useState(0)
+  const value = [count, setCount]
+  // const value = React.useState(0)
+  return &lt;CountContext.Provider value={value} {...props} /&gt;
+}
+
+function CountDisplay() {
+  const [count] = React.useContext(CountContext)
+  return &lt;div&gt;{`The current count is ${count}`}&lt;/div&gt;
+}
+
+function Counter() {
+  const [, setCount] = React.useContext(CountContext)
+  const increment = () =&gt; setCount(c =&gt; c + 1)
+  return &lt;button onClick={increment}&gt;Increment count&lt;/button&gt;
+}
+
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;CountProvider&gt;
+        &lt;CountDisplay /&gt;
+        &lt;Counter /&gt;
+      &lt;/CountProvider&gt;
+    &lt;/div&gt;
+  )
+}
+</code></pre>
+<h2>配合useReducer使用</h2>
+<p>CounterCotext.jsx</p>
+<pre><code class="language-js">const CounterContext = React.createContext(null)
+export default CounterContext
+</code></pre>
+<p>CounterReducer.jsx</p>
+<pre><code class="language-js">const CounterReducer = (state,action)=&gt;{
+    switch (action.type){
+        case 'counter/increment':
+         return state + 1;
+        case 'counter/decrement':
+         return state - 1;
+        default:
+         return state;
+    }
+}
+export default CounterReducer
+</code></pre>
+<p>App.jsx</p>
+<pre><code class="language-js">import  CounterContext
+import  CounterReducer
+
+function App() {
+  const [state,dispacth] = React.useReducer(CounterReducer,0)
+    
+  return (
+    &lt;div&gt;
+      &lt;CounterContext.Provider value={{state,dispath}}&gt;
+        &lt;Counter /&gt;
+      &lt;/CounterContext.Provider&gt;
+    &lt;/div&gt;
+  )
+}
+</code></pre>
+<p>Counter.jsx</p>
+<pre><code class="language-js">import  useContext
+
+const Counter = () =&gt;{
+ const count = React.useContext(CounterContext)
+ const dispatch = count.dispatch
+    
+ return (
+    &lt;div&gt;
+      &lt;button onClick={()=&gt;{dispatch({type:'counter/increment'})}}&gt;&lt;/button&gt;
+      &lt;span&gt;{count.state}&lt;/span&gt;
+      &lt;button onClick={()=&gt;{dispatch({type:'counter/decrement'})}}&gt;&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+</code></pre>
+]]></content:encoded>
+            <author>xu2526@outlook.com (Bohua Xu)</author>
+            <enclosure url="https://xubh.top/images/destructuring.png" length="0" type="image/png"/>
+        </item>
+        <item>
             <title><![CDATA[?.]]></title>
             <link>https://xubh.top/posts/jottingsl</link>
             <guid>https://xubh.top/posts/jottingsl</guid>
-            <pubDate>Fri, 26 Aug 2022 08:00:00 GMT</pubDate>
+            <pubDate>Thu, 26 Aug 2021 08:00:00 GMT</pubDate>
             <description><![CDATA[Compound Components]]></description>
             <content:encoded><![CDATA[<p>[[toc]]</p>
 <!-- > Slides: [PDF](https://antfu.me/talks/2022-01-26) | [SPA](https://talks.antfu.me/2022/vue-nation)
@@ -373,137 +504,6 @@ console.log(customerCity); // “暗之城”
 <p><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Optional_chaining">https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Optional_chaining</a></p>
 ]]></content:encoded>
             <author>xu2526@outlook.com (Bohua Xu)</author>
-        </item>
-        <item>
-            <title><![CDATA[useContext -useReducer]]></title>
-            <link>https://xubh.top/posts/useContextuseReducer</link>
-            <guid>https://xubh.top/posts/useContextuseReducer</guid>
-            <pubDate>Tue, 21 Dec 2021 16:00:00 GMT</pubDate>
-            <description><![CDATA[Prefer object destructure or array? Can we support both?]]></description>
-            <content:encoded><![CDATA[<p>[[toc]]</p>
-<h2>useContext</h2>
-<pre><code class="language-js">const CountContext = React.createContext()
-// CountProvider和useCount写在外部导入
-function CountProvider(props) {
-  const [count, setCount] = React.useState(0)
-  const value = [count, setCount]
-  return &lt;CountContext.Provider value={value} {...props} /&gt;
-}
-
-function useCount() { // 封装useCount
-  const context = React.useContext(CountContext)
-  if (!context)
-    throw new Error('useCount must be used within a CountProvider')
-
-  return context
-}
-
-function CountDisplay() {
-  const [count] = useCount()
-  return &lt;div&gt;{`The current count is ${count}`}&lt;/div&gt;
-}
-
-function Counter() {
-  const [, setCount] = useCount()
-  const increment = () =&gt; setCount(c =&gt; c + 1)
-  return &lt;button onClick={increment}&gt;Increment count&lt;/button&gt;
-}
-
-function App() {
-  return (
-    &lt;div&gt;
-      &lt;CountProvider&gt;
-        &lt;CountDisplay /&gt;
-        &lt;Counter /&gt;
-      &lt;/CountProvider&gt;
-    &lt;/div&gt;
-  )
-}
-</code></pre>
-<pre><code class="language-js">const CountContext = React.createContext()
-
-function CountProvider(props) {
-  const [count, setCount] = React.useState(0)
-  const value = [count, setCount]
-  // const value = React.useState(0)
-  return &lt;CountContext.Provider value={value} {...props} /&gt;
-}
-
-function CountDisplay() {
-  const [count] = React.useContext(CountContext)
-  return &lt;div&gt;{`The current count is ${count}`}&lt;/div&gt;
-}
-
-function Counter() {
-  const [, setCount] = React.useContext(CountContext)
-  const increment = () =&gt; setCount(c =&gt; c + 1)
-  return &lt;button onClick={increment}&gt;Increment count&lt;/button&gt;
-}
-
-function App() {
-  return (
-    &lt;div&gt;
-      &lt;CountProvider&gt;
-        &lt;CountDisplay /&gt;
-        &lt;Counter /&gt;
-      &lt;/CountProvider&gt;
-    &lt;/div&gt;
-  )
-}
-</code></pre>
-<h2>配合useReducer使用</h2>
-<p>CounterCotext.jsx</p>
-<pre><code class="language-js">const CounterContext = React.createContext(null)
-export default CounterContext
-</code></pre>
-<p>CounterReducer.jsx</p>
-<pre><code class="language-js">const CounterReducer = (state,action)=&gt;{
-    switch (action.type){
-        case 'counter/increment':
-         return state + 1;
-        case 'counter/decrement':
-         return state - 1;
-        default:
-         return state;
-    }
-}
-export default CounterReducer
-</code></pre>
-<p>App.jsx</p>
-<pre><code class="language-js">import  CounterContext
-import  CounterReducer
-
-function App() {
-  const [state,dispacth] = React.useReducer(CounterReducer,0)
-    
-  return (
-    &lt;div&gt;
-      &lt;CounterContext.Provider value={{state,dispath}}&gt;
-        &lt;Counter /&gt;
-      &lt;/CounterContext.Provider&gt;
-    &lt;/div&gt;
-  )
-}
-</code></pre>
-<p>Counter.jsx</p>
-<pre><code class="language-js">import  useContext
-
-const Counter = () =&gt;{
- const count = React.useContext(CounterContext)
- const dispatch = count.dispatch
-    
- return (
-    &lt;div&gt;
-      &lt;button onClick={()=&gt;{dispatch({type:'counter/increment'})}}&gt;&lt;/button&gt;
-      &lt;span&gt;{count.state}&lt;/span&gt;
-      &lt;button onClick={()=&gt;{dispatch({type:'counter/decrement'})}}&gt;&lt;/button&gt;
-    &lt;/div&gt;
-  )
-}
-</code></pre>
-]]></content:encoded>
-            <author>xu2526@outlook.com (Bohua Xu)</author>
-            <enclosure url="https://xubh.top/images/destructuring.png" length="0" type="image/png"/>
         </item>
     </channel>
 </rss>
