@@ -4,7 +4,7 @@
         <title>Bohua xu</title>
         <link>https://antfu.me/</link>
         <description>bohua xu' Blog</description>
-        <lastBuildDate>Thu, 26 Sep 2024 15:36:20 GMT</lastBuildDate>
+        <lastBuildDate>Sun, 08 Dec 2024 13:35:11 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <image>
@@ -14,6 +14,184 @@
         </image>
         <copyright>CC BY-NC-SA 4.0 2021 © bohua</copyright>
         <atom:link href="https://antfu.me/feed.xml" rel="self" type="application/rss+xml"/>
+        <item>
+            <title><![CDATA[rollDice🎲[1.0]]]></title>
+            <link>https://xubh.top/posts/rolldice</link>
+            <guid>https://xubh.top/posts/rolldice</guid>
+            <pubDate>Sun, 08 Dec 2024 08:00:00 GMT</pubDate>
+            <description><![CDATA[rollDice]]></description>
+            <content:encoded><![CDATA[<p>[[toc]]</p>
+<h1>Simple 3D Dice Rolling</h1>
+<h2>Demo</h2>
+<p>🎮 <a href="https://rolldice.xubh.top/">Try it online</a></p>
+<h2>User Guide</h2>
+<h3>Initial Interface</h3>
+<img src="https://telegraph-image-92x.pages.dev/file/08163f21ab28281d01b79-07d32073bcaa151655.png" alt="Initial Interface" style="max-width: 60%; display: block; margin: 20px auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />
+<h3>Basic Operations</h3>
+<ul>
+<li>Click any dice to start rolling</li>
+</ul>
+<h3>Hidden Features</h3>
+<ol>
+<li><strong>Cheat Mode</strong>
+<ul>
+<li>Double-click in the lower-left corner area to activate the cheat system</li>
+<li>A dice control panel will appear after activation</li>
+<li>Click &quot;Reset Dice&quot; button to stack dice neatly</li>
+</ul>
+</li>
+</ol>
+<img src="https://telegraph-image-92x.pages.dev/file/57e209add3d43671a5820-6ac6ed7c10073051e3.png" alt="Cheat Mode Panel" style="max-width: 60%; display: block; margin: 20px auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />
+<ol start="2">
+<li><strong>Dice Control Panel</strong>
+<ul>
+<li>Allows individual adjustment of each die's value</li>
+<li>Provides real-time preview of modifications</li>
+</ul>
+</li>
+</ol>
+<h3>Dice States</h3>
+<p><strong>Reset State</strong><br>
+<img src="https://telegraph-image-92x.pages.dev/file/9b2d90ebe286fbe20f656-569a066a3832d7e242.png" alt="After Throw" style="max-width: 60%; display: block; margin: 20px auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" /></p>
+<p><strong>After Throw</strong><br>
+<img src="https://telegraph-image-92x.pages.dev/file/13dd52115634b7a21fd12-72d77ee142b401b447.png" alt="Reset State" style="max-width: 60%; display: block; margin: 20px auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" /></p>
+<h2>Core Functionality Implementation</h2>
+<h3>1. Physics Engine Integration</h3>
+<p>Using <code>@react-three/cannon</code> for realistic physics effects:</p>
+<pre><code class="language-typescript">const [ref, api] = useBox(() =&gt; ({
+  mass: 1,
+  position,
+  args: [1.5, 1.5, 1.5],
+  linearDamping: 0.4,
+  angularDamping: 0.3,
+  material: {
+    friction: 0.3,
+    restitution: 0.6,
+  }
+}))
+</code></pre>
+<ul>
+<li><code>mass</code>: Sets the dice mass</li>
+<li><code>linearDamping</code>: Controls linear motion damping</li>
+<li><code>angularDamping</code>: Controls rotational damping</li>
+<li><code>friction</code>: Friction coefficient</li>
+<li><code>restitution</code>: Elasticity coefficient</li>
+</ul>
+<h3>2. State Management</h3>
+<p>Using Zustand for dice state management:</p>
+<pre><code class="language-typescript">const useDiceStore = create&lt;DiceState&gt;((set, get) =&gt; ({
+  diceCount: 5,
+  diceValues: Array(6).fill(1),
+  diceRefs: new Set(),
+  
+  throwAllDice: () =&gt; {
+    const { diceRefs } = get()
+    diceRefs.forEach(api =&gt; {
+      // Random throw force and direction
+      const maxVelocity = 12 + Math.random() * 6
+      const height = 15 + Math.random() * 8
+      // ...
+    })
+  }
+}))
+</code></pre>
+<h3>3. Dice Material Rendering</h3>
+<h4>3.1 Texture Generation</h4>
+<p>Using Canvas to dynamically generate dice face textures:</p>
+<pre><code class="language-typescript">export function createDiceTexture(number: number): THREE.Texture {
+  const canvas = document.createElement('canvas')
+  const context = canvas.getContext('2d')
+  // Draw background and dots
+  const dotPositions = getDotPositions(number)
+  dotPositions.forEach(([x, y]) =&gt; {
+    context.arc(x, y, dotRadius, 0, Math.PI * 2)
+  })
+  return new THREE.CanvasTexture(canvas)
+}
+</code></pre>
+<h4>3.2 Material Application</h4>
+<pre><code class="language-typescript">const Dice: React.FC&lt;DiceProps&gt; = () =&gt; {
+  const textures = useRef([
+    createDiceTexture(6),
+    createDiceTexture(5),
+    createDiceTexture(2),
+    createDiceTexture(1),
+    createDiceTexture(4),
+    createDiceTexture(3),
+  ])
+
+  return (
+    &lt;Box args={[1.45, 1.45, 1.45]} castShadow&gt;
+      {textures.current.map((texture, index) =&gt; (
+        &lt;meshPhysicalMaterial
+          key={index}
+          attach={`material-${index}`}
+          map={texture}
+          metalness={0.3}
+          roughness={0.4}
+          clearcoat={0.5}
+        /&gt;
+      ))}
+    &lt;/Box&gt;
+  )
+}
+</code></pre>
+<ul>
+<li>Using Canvas to dynamically generate textures for each face</li>
+<li>Applying meshPhysicalMaterial for realistic material effects</li>
+<li>Caching textures with useRef to avoid recreation</li>
+</ul>
+<h3>4. Interaction Feedback</h3>
+<p>Combining sound and vibration for feedback:</p>
+<pre><code class="language-typescript">onCollide: (event: any) =&gt; {
+  if (event.body) {
+    vibrate(VIBRATION_PATTERNS.DICE_HIT);
+  }
+}
+</code></pre>
+<h3>5. Smooth Animation</h3>
+<p>Using interpolation for fluid motion:</p>
+<pre><code class="language-typescript">useFrame(() =&gt; {
+  if (!ref.current) return
+  
+  const lerpFactor = 0.1
+  smoothedPosition.current[0] += (currentPosition.x - smoothedPosition.current[0]) * lerpFactor
+  // ...
+})
+</code></pre>
+<h2>Key Technical Points</h2>
+<h3>Collision Detection</h3>
+<pre><code class="language-typescript">useEffect(() =&gt; {
+  const currentPosition = [0, 0, 0]
+  const unsubscribe = api.position.subscribe((v: [number, number, number]) =&gt; {
+    // Detect boundary collisions
+    const maxBound = 9
+    if (Math.abs(v[0]) &gt; maxBound || Math.abs(v[2]) &gt; maxBound) {
+      api.velocity.set(0, 0, 0)
+    }
+  })
+  return () =&gt; unsubscribe()
+}, [api])
+</code></pre>
+<h3>Motion State Monitoring</h3>
+<pre><code class="language-typescript">useEffect(() =&gt; {
+  let isMoving = false;
+  const unsubscribeVelocity = api.velocity.subscribe((v: [number, number, number]) =&gt; {
+    const speed = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    if (speed &gt; 0.1 &amp;&amp; !isMoving) {
+      isMoving = true;
+      playDiceRollingSound();
+    } else if (isMoving &amp;&amp; speed &lt; 0.1) {
+      isMoving = false;
+      stopDiceRollingSound();
+    }
+  });
+  return () =&gt; unsubscribeVelocity();
+}, [api])
+</code></pre>
+]]></content:encoded>
+            <author>xu2526@outlook.com (Bohua Xu)</author>
+        </item>
         <item>
             <title><![CDATA[Why  Breaking Up with CSS-in-JS]]></title>
             <link>https://xubh.top/posts/whybreakingccinjs</link>
